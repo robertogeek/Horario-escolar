@@ -1,0 +1,36 @@
+name: Publicar en GitHub Pages
+
+on:
+  push:
+    branches: [claude/school-schedule-format-se7wij, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preparar sitio (web, icono, calendario y PDF)
+        run: |
+          mkdir -p site
+          cp index.html icon.png horario-2B.ics horario-2B.pdf site/
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
